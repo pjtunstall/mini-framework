@@ -27,7 +27,7 @@ export class App {
         state[key] = value;
         console.log("Setting", key, "to", value);
 
-        // `requestAnimationFrame` ensures `update` is called before the repaint that it triggers. Otherwise `update` may be called after the repaint and the changes will not be visible until repaint has been triggered again by the next update.
+        // `requestAnimationFrame` is used here so that the `update` call (including diff and reconciliation) happens after the current event handler has returned. This ensures that any other changes the handler makes to the virtual DOM are taken into account by `update`. Clearly, that will be the case for any direct changes that the handler makes to the virtual DOM, not mediated by the `state` proxy object; by batching updates (see next comment), we ensure that the updates includes all changes the handler makes to `state`.
         if (this.#batch) {
           // By canceling any previous `requestAnimationFrame`, we make sure that only one `update` is called per frame, thus batching interactions with the DOM, and preventing multiple updates in response to a single event.
           cancelAnimationFrame(this.#batch);
